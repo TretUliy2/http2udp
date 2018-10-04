@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"syscall"
 	"time"
 )
@@ -25,10 +26,14 @@ func main() {
 	data = make([]byte, maxdata)
 	sourceurl := flag.String("s", "http://82.193.96.217:12999/udp/239.23.0.5:1234", "a string")
 	destination := flag.String("d", "239.23.15.102", "a string")
+	help := flag.Bool("h", false, "usage")
 	ttl := flag.Int("t", 64, "ttl of destination packets")
 	tos := flag.Int("o", 136, "tos of a packet")
 	flag.Parse()
-
+	if *help == true {
+		usage()
+		os.Exit(0)
+	}
 	fmt.Printf("%d %d\n", *ttl, *tos)
 	readhttp(*sourceurl, *destination, *ttl, *tos)
 }
@@ -95,4 +100,9 @@ func setSockOpts(udpConn *net.UDPConn, params ...int) {
 	if sockerr != nil {
 		fmt.Printf("Error setting IP_TOS sockopt %v\n", sockerr)
 	}
+}
+
+func usage() {
+	fmt.Printf("%v -s <source http address> -d <destination udp address>"+
+		"[-t ttl for multicast in dec] [-o tos in hex] -h help\n", os.Args[0])
 }
